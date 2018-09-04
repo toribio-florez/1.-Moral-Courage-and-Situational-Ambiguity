@@ -19,7 +19,7 @@ table(rawdata.relabel$DQ01)
 table(rawdata.relabel$DQ02)
 rawdata.relabel$Excl1<-ifelse(rawdata.relabel$DQ01&rawdata.relabel$DQ02<=2,1,0)  
 table(rawdata.relabel$Excl1) #2 people are excluded based on self-report data quality.
-table(is.na(rawdata.relabel$Excl1)) #4 people has NAs on DQ01 or DQ02.
+table(is.na(rawdata.relabel$Excl1)) #6 NAs, and 4 people with NAs on DQ01 or DQ02.
 
 ##Duration and concentration items.
 rawdata.relabel$TIME_SUM_T1<-rawdata.relabel$TIME_SUM.x/60
@@ -30,10 +30,10 @@ table(rawdata.relabel$KO02_01)
 rawdata.relabel$Excl2<-ifelse(rawdata.relabel$TIME_SUM_T1<45
                               &(rawdata.relabel$KO01_01!=5|rawdata.relabel$KO02_01!=1),1,0) 
 table(rawdata.relabel$Excl2) #0 people are excluded based on Duration and Concentration Items.
-table(is.na(rawdata.relabel$Excl2))  #2 people had low times, and NAs in Concentration Items.
+table(is.na(rawdata.relabel$Excl2))  #6 NAs, and 2 people had low times and NAs in Concentration Items.
 
 
-##Delete Excluded cases. Total N = 163.
+##Delete Excluded cases. Total N = 164.
 library(dplyr)
 rawdata.excl <- filter(rawdata.relabel, Excl1!=1 & !is.na(Excl1)) %>% filter(Excl2==0)
 
@@ -61,5 +61,3 @@ R402
 #In total AROUND 25 people failed 3PPG attention checks, but were redirected to instructions.
 
 write.csv2(rawdata.excl, file = "Data Study2 T1&T2 (Analyses file).csv")
-
-
