@@ -1,10 +1,8 @@
 options(scipen=99)    #Scientific Notation to fixed instead of exponential.
 
 ################################################################################################################################
-##############################################           DATA SHAPING           ################################################
+############################################## DATA SHAPING & COMPUTATION OF VARIABLES #########################################
 ################################################################################################################################
-
-
 #Creating subset with variables of interest.
 library(dplyr)
 data1<-  select(rawdata.excl, 
@@ -21,20 +19,29 @@ data1<-  select(rawdata.excl,
                 DP17_01,DP18_01,DP18_02,DP19_01,DP19_02,DP20_01,DP20_02,DP21_01,DP21_02,DP22_01,DP22_02,DP23_01,DP23_02,DP24_01,DP24_02,  #3PPG Round 3.
                 DP25_01,DP26_01,DP26_02,DP27_01,DP27_02,DP28_01,DP28_02,DP29_01,DP29_02,DP30_01,DP30_02,DP31_01,DP31_02,DP32_01,DP32_02,  #3PPG Round 4.
                 DP48_01,DP48_02,DP49_01,DP49_02,DP50_01,DP50_02,DP51_01,DP51_02, #Rounds Comprehension Checks.
-                RF01_00,RF01_01,RF01_02, #Retrospective Intervention EXPERIMENTER 1.
+                Exclusion_doubts, #Exclusion Decision based on Ratings of Reactions to the Embezzlement.
+                D_Intervention_4, IG_intervention_4,
+                D_Intervention_5a, IG_intervention_5a, 
+                D_Intervention_5b, IG_intervention_5b, 
+                D_Intervention_6a, IG_intervention_6a, 
+                D_Intervention_6b, IG_intervention_6b, 
+                D_Intervention_6c, IG_intervention_6c, 
+                D_Intervention_6d, IG_intervention_6d, 
+                D_Intervention_8, IG_intervention_8,
+                RF01_00,RF01_01, #Retrospective Intervention EXPERIMENTER 1.
                 RF01_A_06,RF01_A_07,RF01_A_08,
                 RF01_B_06,RF01_B_07,RF01_B_08,
                 RF01_C_06,RF01_C_07,RF01_C_08,
                 RF01_D_06,RF01_D_07,RF01_D_08,
-                RF02_01,RF02_02, #Retrospective Intervention EXPERIMENTER 2.
+                RF02_01, #Retrospective Intervention EXPERIMENTER 2.
                 RF02_A_06,RF02_A_07,RF02_A_08,
-                RF03_01,RF03_02, #Retrospective Intervention CONFEDERATE.
+                RF03_01, #Retrospective Intervention CONFEDERATE.
                 RF03_A_06,RF03_A_07,RF03_A_08,
                 RF03_B_06,RF03_B_07,RF03_B_08,
                 RF03_C_06,RF03_C_07,RF03_C_08,
                 RF03_D_06,RF03_D_07,RF03_D_08,
                 RF03_E_06,RF03_E_07,RF03_E_08,
-                RF04_01,RF04_02, #Retrospective Intervention PROJECT LEADER.
+                RF04_01, #Retrospective Intervention PROJECT LEADER.
                 RF04_A_06,RF04_A_07,RF04_A_08,
                 TIME_SUM_T1,   #Experiment Duration.
                 KO01_01,KO02_01     #Concentration Items.
@@ -43,12 +50,18 @@ data1<-  select(rawdata.excl,
 #Creating ID column. Our CASE variable (CASE_T2) has multiple NAs.
 data1$ID <- seq.int(nrow(data1))
 
-#Calculating and Centering aggregated scores of JS.
+##############################################   JUSTICE SENSITIVITY   ################################################
+
+#Calculating and Standardizing aggregated scores of JS.
 library(psych)
 data1$VictimJS <- rowMeans(data1[c("JS01_01","JS01_02")],na.rm=TRUE)  #Victim JS.
+data1$VictimJS.z <- scale(data1$VictimJS)[,]  #Standardized Victim JS.
 data1$ObserverJS <- rowMeans(data1[c("JS02_01","JS02_02")],na.rm=TRUE)  #Observer JS.
-data1$BeneficiaryJS <- rowMeans(data1[c("JS03_01","JS03_02")],na.rm=TRUE)  #Beneficiary JS.
+data1$ObserverJS.z <- scale(ObserverJS)[,] #Standardized Observer JS.
+data1$BeneficiaryJS <- rowMeans(data1[c("JS03_01","JS03_02")],na.rm=TRUE) #Beneficiary JS.
+data1$BeneficiaryJS.z <- scale(BeneficiaryJS)[,] #Standardized Beneficiary JS.
 data1$PerpetratorJS <- rowMeans(data1[c("JS04_01","JS04_02")],na.rm=TRUE)  #Perpetrator JS.
+data1$PerpetratorJS.z <- scale(PerpetratorJS)[,]  #Perpetrator JS.
 
 OJSm <- mean(data1$ObserverJS,na.rm=TRUE)
 OJSsd <- sd(data1$ObserverJS,na.rm=TRUE)
@@ -57,13 +70,9 @@ PJSsd <- sd(data1$PerpetratorJS,na.rm=TRUE)
 BJSm <- mean(data1$BeneficiaryJS,na.rm=TRUE)
 BJSsd <- sd(data1$BeneficiaryJS,na.rm=TRUE)
 
-
-data1$ObserverJS.c <- data1$ObserverJS-OJSm
-data1$BeneficiaryJS.c <- data1$BeneficiaryJS-BJSm
-data1$PerpetratorJS.c <- data1$PerpetratorJS-PJSm
-
-
-#Calculate Total PUNISHMENT/COMPENSATION in each Round across decisions (*for PUNISHMENT DICHOTOMIZATION).
+##############################################   3PPG: PUNISHMENT/COMPENSATION   ################################################
+#CONTINUOUS.
+#Calculate Total PUNISHMENT/COMPENSATION in each Round across decisions.
 data1$R1<-data1$DP02_01+data1$DP03_01+data1$DP04_01+data1$DP05_01+data1$DP06_01
 data1$R2<-data1$DP10_01+data1$DP11_01+data1$DP12_01+data1$DP13_01+data1$DP14_01
 data1$R3<-data1$DP18_01+data1$DP19_01+data1$DP20_01+data1$DP21_01+data1$DP22_01
@@ -84,8 +93,7 @@ data1$R2b.Comp<-data1$DP10_02+data1$DP11_02+data1$DP12_02+data1$DP13_02+data1$DP
 data1$R3b.Comp<-data1$DP18_02+data1$DP19_02+data1$DP20_02+data1$DP21_02+data1$DP22_02+data1$DP23_02+data1$DP24_02
 data1$R4b.Comp<-data1$DP26_02+data1$DP27_02+data1$DP28_02+data1$DP29_02+data1$DP30_02+data1$DP31_02+data1$DP32_02
 
-
-#PUNISHMENT DICHOTOMIZATION.
+#PUNISHMENT: DICHOTOMOUS.
 data1$Punishment.R1<-ifelse(data1$R1>0,1,0)
 data1$Punishment.R2<-ifelse(data1$R2>0,1,0)
 data1$Punishment.R3<-ifelse(data1$R3>0,1,0)
@@ -96,10 +104,60 @@ table(data1$Punishment.R2)
 table(data1$Punishment.R3)
 table(data1$Punishment.R4)
 
-#INTERVENTION: DICHOTOMOUS.
+##############################################  INTERVENTION BEHAVIOR (BEHAVIORAL CODING) ################################################
+#CONTINUOUS.
+#Inter-rater Reliability.
+intervCol <- grep("ntervention",colnames(data1),value=FALSE)   #Column numbers of Intervention Ratings for every Embezzlement stage.
+
+library(psych)
+IRR_4 <- alpha(as.matrix(data1[,intervCol[1]:intervCol[2]]))    #Interrater Reliability for Phase 4.
+IRR_4 #alpha = .91.
+IRR_5a <- alpha(as.matrix(data1[,intervCol[3]:intervCol[4]]))    #Interrater Reliability for Phase 5a.
+IRR_5a #alpha = .94.
+IRR_5b <- alpha(as.matrix(data1[,intervCol[5]:intervCol[6]]))    #Interrater Reliability for Phase 5b.
+IRR_5b #No variance on Rater 1 (D).
+IRR_6a <- alpha(as.matrix(data1[,intervCol[7]:intervCol[8]]))    #Interrater Reliability for Phase 6a.
+IRR_6a #alpha = .99.
+IRR_6b <- alpha(as.matrix(data1[,intervCol[9]:intervCol[10]]))    #Interrater Reliability for Phase 6b.
+IRR_6b #alpha = .66.
+IRR_6c <- alpha(as.matrix(data1[,intervCol[11]:intervCol[12]]))    #Interrater Reliability for Phase 6c.
+IRR_6c #No variance on Rater 1 (D) and Rater 2 (IG).
+IRR_6d <- alpha(as.matrix(data1[,intervCol[13]:intervCol[14]]))    #Interrater Reliability for Phase 6d.
+IRR_6d #alpha = .83.
+IRR_8 <- alpha(as.matrix(data1[,intervCol[15]:intervCol[16]]))    #Interrater Reliability for Phase 8.
+IRR_8 #alpha = .49.
+        
+#Aggregate ratings across raters for each Phase.
+data1$InterStrength_4 <- rowMeans(data1[,intervCol[1]:intervCol[2]],na.rm=TRUE)
+data1$InterStrength_5a <- rowMeans(data1[,intervCol[3]:intervCol[4]],na.rm=TRUE)
+data1$InterStrength_5b <- rowMeans(data1[,intervCol[5]:intervCol[6]],na.rm=TRUE)
+data1$InterStrength_6a <- rowMeans(data1[,intervCol[7]:intervCol[8]],na.rm=TRUE)
+data1$InterStrength_6b <- rowMeans(data1[,intervCol[9]:intervCol[10]],na.rm=TRUE)
+data1$InterStrength_6c <- rowMeans(data1[,intervCol[11]:intervCol[12]],na.rm=TRUE)
+data1$InterStrength_6d <- rowMeans(data1[,intervCol[13]:intervCol[14]],na.rm=TRUE)
+data1$InterStrength_8 <- rowMeans(data1[,intervCol[15]:intervCol[16]],na.rm=TRUE)
+
+#Create Phase 7 - Project Leader's rating when there was no videorecording.
+data1$InterStrength_7_1 <- ifelse(data1$RF04_A_06==1,1,0)
+data1$InterStrength_7_2 <- ifelse(data1$RF04_A_07==1,2,0)
+data1$InterStrength_7_3 <- ifelse(data1$RF04_A_08==1,3,0)
+
+data1$InterStrength_7 <- rowSums(data1[,grep("InterStrength_7_",colnames(data1),value=FALSE)],na.rm = TRUE)
+
+data1[,grep("InterStrength_7_",colnames(data1),value=FALSE)]<-NULL #Delete intermediate variables.
+
+#Maximum Intervention Strength across Phases.
+data1$MAXInterStrength <- apply(data1[,grep("InterStrength_",colnames(data1),value=FALSE)],1,max)
+
+#DICHOTOMOUS.
+data1$InterDich <- ifelse(data1$MAXInterStrength==0,0,1)
+table(data1$InterDich)
+
+
+##############################################  INTERVENTION BEHAVIOR (RETROSPECTIVE EXTERNAL EVALUATION)  ################################################
+#DICHOTOMOUS.
 
 # ifelse from 1 = Intervention, 2 = No intervention, to: 1 = Intervention, 0 = No intervention.
-
 data1$EX1_A_06 <- ifelse(data1$RF01_A_06==1,1,0)
 data1$EX1_A_07 <- ifelse(data1$RF01_A_07==1,1,0)
 data1$EX1_A_08 <- ifelse(data1$RF01_A_08==1,1,0)
@@ -151,13 +209,12 @@ data1$INT_dich.retro <- ifelse(data1$Retro.Sum==0,0,1)
 table(data1$INT_dich.retro)
 
 #INTERVENTION: Continuous.
-
 #From dichotomous YES/NO, create continuous variable from 1 to 3, depending on whether people
 #1 = make a comment without labeling the situation as wrong (__06), 
 #2 = label the situation as wrong, immoral or fraud (_07),
 #3 = Stop the fraud, threat to report it (_08).
-library(dplyr)
 
+library(dplyr)
 data1$EX1_A_06c <- recode(data1$RF01_A_06, '1'=1, '2'=0,.missing=0)
 data1$EX1_A_07c <- recode(data1$RF01_A_07, '1'=2, '2'=0,.missing=0)
 data1$EX1_A_08c <- recode(data1$RF01_A_08, '1'=3, '2'=0,.missing=0)
@@ -206,8 +263,7 @@ data1$INT_con.retro <-  apply(data1[c("EX1_A_06c", "EX1_A_07c", "EX1_A_08c",
 
 table(data1$INT_con.retro)
 
-
-
+##############################################  DATA RESHAPE: WIDE TO LONG FORMAT  ################################################
 #Reshape from wide to long format. Individually for each Categorical Variable.
 ############PUNISHMENT DICHOTOMOUS##########
 library(reshape2)
@@ -471,6 +527,12 @@ http://data.library.virginia.edu/visualizing-the-effects-of-logistic-regression/
   
   
 ##H3##
+#Exclusion based on Doubts and Detection of the Embezzlement.
+library(dplyr)
+table(data1$Exclusion_doubts) #32 Participants detected or expressed doubts about the Embezzlement.
+
+
+
 
 H3 <- glmer(INT_dich.retro~Punishment.x*Ambiguity+Punishment.x*Uncertainty + (1|ID), data=dichm,family = binomial(link = logit))
 summary(H3)
