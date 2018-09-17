@@ -17,9 +17,10 @@ for(i in c(ColumnA:ColumnX)) {
 #NOTE: In Exclusion Criteria doc, scale has 6 points. In Soscisurvey, scale goes from 1 to 5.
 table(rawdata.relabel$DQ01)
 table(rawdata.relabel$DQ02)
-rawdata.relabel$Excl1<-ifelse(rawdata.relabel$DQ01&rawdata.relabel$DQ02<=2,1,0)  
+rawdata.relabel$Excl1<-ifelse(rawdata.relabel$DQ01&rawdata.relabel$DQ02<=2,1,0) 
+
 table(rawdata.relabel$Excl1) #2 people are excluded based on self-report data quality.
-table(is.na(rawdata.relabel$Excl1)) #6 NAs, and 4 people with NAs on DQ01 or DQ02.
+table(is.na(rawdata.relabel$Excl1)) #10 NAs, 4 of them with NAs on DQ01 or DQ02.
 
 ##Duration and concentration items.
 rawdata.relabel$TIME_SUM_T1<-rawdata.relabel$TIME_SUM.x/60
@@ -29,9 +30,14 @@ table(rawdata.relabel$KO02_01)
 
 rawdata.relabel$Excl2<-ifelse(rawdata.relabel$TIME_SUM_T1<45
                               &(rawdata.relabel$KO01_01!=5|rawdata.relabel$KO02_01!=1),1,0) 
+
 table(rawdata.relabel$Excl2) #0 people are excluded based on Duration and Concentration Items.
 table(is.na(rawdata.relabel$Excl2))  #6 NAs, and 2 people had low times and NAs in Concentration Items.
+table(is.na(rawdata.relabel$Excl1)&is.na(rawdata.relabel$Excl2)) #All the NAs from Excl2 are also NAs for Excl1.
 
+#EXCLUDED CASES AFTER EXCLUSION AND NAs.
+#From 176 rows, we delete 2 excluded based on general exclusion criteria and delete 10 NAs.
+#Subset for 3PPG Analyses = 164 observations.
 
 ##3PPG Control items in each Round.
 #Baseline. Correct Answers: R101 (7) - R102 (2)
@@ -62,7 +68,6 @@ R402
 ################################################################################################################################
 
 #Data subset applying GENERAL EXCLUSION CRITERIA: Total N = 164.
-
 data1 <- filter(rawdata.relabel, Excl1==0) %>% filter(Excl2==0) %>% select(
          SD01_01,SD01_02,SD01_03,SD01_03a,SD01_04, #Sociodemographics.
          DQ01,DQ02,  #Control Careless response.

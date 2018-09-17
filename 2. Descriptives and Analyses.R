@@ -63,13 +63,165 @@ table(data1$Punishment.R2)
 table(data1$Punishment.R3)
 table(data1$Punishment.R4)
 
+##############################################  INTERVENTION BEHAVIOR (BEHAVIORAL CODING) ################################################
+#CONTINUOUS.
+intervCol <- grep("ntervention",colnames(data1),value=FALSE)   #Column numbers of Intervention Ratings for every Embezzlement stage.
+
+#Aggregate ratings across raters for each Phase.
+data1$InterStrength_4 <- rowMeans(data1[,intervCol[1]:intervCol[2]],na.rm=TRUE)
+data1$InterStrength_5a <- rowMeans(data1[,intervCol[3]:intervCol[4]],na.rm=TRUE)
+data1$InterStrength_5b <- rowMeans(data1[,intervCol[5]:intervCol[6]],na.rm=TRUE)
+data1$InterStrength_6a <- rowMeans(data1[,intervCol[7]:intervCol[8]],na.rm=TRUE)
+data1$InterStrength_6b <- rowMeans(data1[,intervCol[9]:intervCol[10]],na.rm=TRUE)
+data1$InterStrength_6c <- rowMeans(data1[,intervCol[11]:intervCol[12]],na.rm=TRUE)
+data1$InterStrength_6d <- rowMeans(data1[,intervCol[13]:intervCol[14]],na.rm=TRUE)
+data1$InterStrength_8 <- rowMeans(data1[,intervCol[15]:intervCol[16]],na.rm=TRUE)
+
+sapply(data1[grep("ntervention",colnames(data1),value=FALSE)],
+       function(x) table(is.na(x)))
+sapply(data1[grep("InterStrength_",colnames(data1),value=FALSE)],
+       function(x) table(is.na(x)))
+
+#Create Phase 7 - Project Leader's rating when there was no videorecording.
+data1$InterStrength_7_1 <- ifelse(data1$RF04_A_06==1,1,0)
+data1$InterStrength_7_2 <- ifelse(data1$RF04_A_07==1,2,0)
+data1$InterStrength_7_3 <- ifelse(data1$RF04_A_08==1,3,0)
+
+data1$InterStrength_7 <- rowSums(data1[,grep("InterStrength_7_",colnames(data1),value=FALSE)],na.rm = FALSE)
+
+data1[,grep("InterStrength_7_",colnames(data1),value=FALSE)]<-NULL #Delete intermediate variables.
+
+#Maximum Intervention Strength across Phases.
+data1$MAXInterStrength <- apply(data1[,grep("InterStrength_",colnames(data1),value=FALSE)],1,max,na.rm=TRUE)
+data1$MAXInterStrength <- replace(data1$MAXInterStrength,data1$MAXInterStrength=='-Inf', NA)
+
+table(data1$MAXInterStrength)
+
+#DICHOTOMOUS.
+data1$InterDich <- ifelse(is.na(data1$MAXInterStrength),NA, ifelse(data1$MAXInterStrength==0,0,1))
+table(data1$InterDich)
+
+##############################################  INTERVENTION BEHAVIOR (RETROSPECTIVE EXTERNAL EVALUATION)  ################################################
+#DICHOTOMOUS: Retrospective evaluation from EX1, EX2 (Experimenter 1 and 2),
+#CON (Confederate), and PL (Project leader).
+# ifelse from 1 = Intervention, 2 = No intervention, to: 1 = Intervention, 0 = No intervention.
+data1$EX1_A_06 <- ifelse(data1$RF01_A_06==1,1,0)
+data1$EX1_A_07 <- ifelse(data1$RF01_A_07==1,1,0)
+data1$EX1_A_08 <- ifelse(data1$RF01_A_08==1,1,0)
+data1$EX1_B_06 <- ifelse(data1$RF01_B_06==1,1,0)
+data1$EX1_B_07 <- ifelse(data1$RF01_B_07==1,1,0)
+data1$EX1_B_08 <- ifelse(data1$RF01_B_08==1,1,0)
+data1$EX1_C_06 <- ifelse(data1$RF01_C_06==1,1,0)
+data1$EX1_C_07 <- ifelse(data1$RF01_C_07==1,1,0)
+data1$EX1_C_08 <- ifelse(data1$RF01_C_08==1,1,0)
+data1$EX1_D_06 <- ifelse(data1$RF01_D_06==1,1,0)
+data1$EX1_D_07 <- ifelse(data1$RF01_D_07==1,1,0)
+data1$EX1_D_08 <- ifelse(data1$RF01_D_08==1,1,0)
+data1$EX2_A_06 <- ifelse(data1$RF02_A_06==1,1,0)
+data1$EX2_A_07 <- ifelse(data1$RF02_A_07==1,1,0)
+data1$EX2_A_08 <- ifelse(data1$RF02_A_08==1,1,0)
+data1$CON_A_06 <- ifelse(data1$RF03_A_06==1,1,0)
+data1$CON_A_07 <- ifelse(data1$RF03_A_07==1,1,0)
+data1$CON_A_08 <- ifelse(data1$RF03_A_08==1,1,0)
+data1$CON_B_06 <- ifelse(data1$RF03_B_06==1,1,0)
+data1$CON_B_07 <- ifelse(data1$RF03_B_07==1,1,0)
+data1$CON_B_08 <- ifelse(data1$RF03_B_08==1,1,0)
+data1$CON_C_06 <- ifelse(data1$RF03_C_06==1,1,0) #Typo in one participant, 22 = 2.
+data1$CON_C_07 <- ifelse(data1$RF03_C_07==1,1,0)
+data1$CON_C_08 <- ifelse(data1$RF03_C_08==1,1,0)
+data1$CON_D_06 <- ifelse(data1$RF03_D_06==1,1,0)
+data1$CON_D_07 <- ifelse(data1$RF03_D_07==1,1,0)
+data1$CON_D_08 <- ifelse(data1$RF03_D_08==1,1,0)
+data1$CON_E_06 <- ifelse(data1$RF03_E_06==1,1,0)
+data1$CON_E_07 <- ifelse(data1$RF03_E_07==1,1,0)
+data1$CON_E_08 <- ifelse(data1$RF03_E_08==1,1,0)
+data1$PL_A_06 <- ifelse(data1$RF04_A_06==1,1,0)
+data1$PL_A_07 <- ifelse(data1$RF04_A_07==1,1,0)
+data1$PL_A_08 <- ifelse(data1$RF04_A_08==1,1,0)
+
+data1$Inter_Retro.Sum <- rowSums(data1[c("EX1_A_06", "EX1_A_07", "EX1_A_08",
+                                                 "EX1_B_06", "EX1_B_07", "EX1_B_08",
+                                                 "EX1_C_06", "EX1_C_07", "EX1_C_08",
+                                                 "EX1_D_06", "EX1_D_07", "EX1_D_08",
+                                                 "EX2_A_06", "EX2_A_07", "EX2_A_08",
+                                                 "CON_A_06", "CON_A_07", "CON_A_08",
+                                                 "CON_B_06", "CON_B_07", "CON_B_08",
+                                                 "CON_C_06", "CON_C_07", "CON_C_08",
+                                                 "CON_D_06", "CON_D_07", "CON_D_08",
+                                                 "CON_E_06", "CON_E_07", "CON_E_08",
+                                                 "PL_A_06", "PL_A_07", "PL_A_08")],
+                                     na.rm=TRUE)
+
+data1$InterDich_Retro <- ifelse(data1$Inter_Retro.Sum==0,0,1)
+table(data1$InterDich_Retro)
+
+#CONTINUOUS.
+#From dichotomous YES/NO, create continuous variable from 1 to 3, depending on whether people
+#1 = make a comment without labeling the situation as wrong (_06), 
+#2 = label the situation as wrong, immoral or fraud (_07),
+#3 = Stop the fraud, threat to report it (_08).
+
+library(dplyr)
+data1$EX1_A_06c <- recode(data1$RF01_A_06, '1'=1, '2'=0,.missing=0)
+data1$EX1_A_07c <- recode(data1$RF01_A_07, '1'=2, '2'=0,.missing=0)
+data1$EX1_A_08c <- recode(data1$RF01_A_08, '1'=3, '2'=0,.missing=0)
+data1$EX1_B_06c <- recode(data1$RF01_B_06, '1'=1, '2'=0,.missing=0)
+data1$EX1_B_07c <- recode(data1$RF01_B_07, '1'=2, '2'=0,.missing=0)
+data1$EX1_B_08c <- recode(data1$RF01_B_08, '1'=3, '2'=0,.missing=0)
+data1$EX1_C_06c <- recode(data1$RF01_C_06, '1'=1, '2'=0,.missing=0)
+data1$EX1_C_07c <- recode(data1$RF01_C_07, '1'=2, '2'=0,.missing=0)
+data1$EX1_C_08c <- recode(data1$RF01_C_08, '1'=3, '2'=0,.missing=0)
+data1$EX1_D_06c <- recode(data1$RF01_D_06, '1'=1, '2'=0,.missing=0)
+data1$EX1_D_07c <- recode(data1$RF01_D_07, '1'=2, '2'=0,.missing=0)
+data1$EX1_D_08c <- recode(data1$RF01_D_08, '1'=3, '2'=0,.missing=0)
+data1$EX2_A_06c <- recode(data1$RF02_A_06, '1'=1, '2'=0,.missing=0)
+data1$EX2_A_07c <- recode(data1$RF02_A_07, '1'=2, '2'=0,.missing=0)
+data1$EX2_A_08c <- recode(data1$RF02_A_08, '1'=3, '2'=0,.missing=0)
+data1$CON_A_06c <- recode(data1$RF03_A_06, '1'=1, '2'=0,.missing=0)
+data1$CON_A_07c <- recode(data1$RF03_A_07, '1'=2, '2'=0,.missing=0)
+data1$CON_A_08c <- recode(data1$RF03_A_08, '1'=3, '2'=0,.missing=0)
+data1$CON_B_06c <- recode(data1$RF03_B_06, '1'=1, '2'=0,.missing=0)
+data1$CON_B_07c <- recode(data1$RF03_B_07, '1'=2, '2'=0,.missing=0)
+data1$CON_B_08c <- recode(data1$RF03_B_08, '1'=3, '2'=0,.missing=0)
+data1$CON_C_06c <- recode(data1$RF03_C_06, '1'=1, '2'=0, '22'=0,.missing=0) #One Typo, 22 = 2, i.e., No Intervention.
+data1$CON_C_07c <- recode(data1$RF03_C_07, '1'=2, '2'=0,.missing=0)
+data1$CON_C_08c <- recode(data1$RF03_C_08, '1'=3, '2'=0,.missing=0)
+data1$CON_D_06c <- recode(data1$RF03_D_06, '1'=1, '2'=0,.missing=0)
+data1$CON_D_07c <- recode(data1$RF03_D_07, '1'=2, '2'=0,.missing=0)
+data1$CON_D_08c <- recode(data1$RF03_D_08, '1'=3, '2'=0,.missing=0)
+data1$CON_E_06c <- recode(data1$RF03_E_06, '1'=1, '2'=0,.missing=0)
+data1$CON_E_07c <- recode(data1$RF03_E_07, '1'=2, '2'=0,.missing=0)
+data1$CON_E_08c <- recode(data1$RF03_E_08, '1'=3, '2'=0,.missing=0)
+data1$PL_A_06c <- recode(data1$RF04_A_06, '1'=1, '2'=0,.missing=0)
+data1$PL_A_07c <- recode(data1$RF04_A_07, '1'=2, '2'=0,.missing=0)
+data1$PL_A_08c <- recode(data1$RF04_A_08, '1'=3, '2'=0,.missing=0)
+
+data1$MAXInterStrength_Retro <-  apply(data1[c("EX1_A_06c", "EX1_A_07c", "EX1_A_08c",
+                                                       "EX1_B_06c", "EX1_B_07c", "EX1_B_08c",
+                                                       "EX1_C_06c", "EX1_C_07c", "EX1_C_08c",
+                                                       "EX1_D_06c", "EX1_D_07c", "EX1_D_08c",
+                                                       "EX2_A_06c", "EX2_A_07c", "EX2_A_08c",
+                                                       "CON_A_06c", "CON_A_07c", "CON_A_08c",
+                                                       "CON_B_06c", "CON_B_07c", "CON_B_08c",
+                                                       "CON_C_06c", "CON_C_07c", "CON_C_08c",
+                                                       "CON_D_06c", "CON_D_07c", "CON_D_08c",
+                                                       "CON_E_06c", "CON_E_07c", "CON_E_08c",
+                                                       "PL_A_06c", "PL_A_07c", "PL_A_08c")],1,max)
+
+table(data1$MAXInterStrength_Retro)
+
+
+
+
+
 ##############################################  DATA RESHAPE: WIDE TO LONG FORMAT  ################################################
 #Reshape from wide to long format. Individually for each Categorical Variable.
 ############PUNISHMENT DICHOTOMOUS##########
 library(reshape2)
 dich1 <- melt(data1,
               id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
-                        "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z"), #ID variables - variables to keep but not split apart on.
+                        "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
+                        "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
               measure.vars=c('Punishment.R1','Punishment.R2','Punishment.R3','Punishment.R4'), #Categories.
               variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
               value.name="Punishment" #Name of DV.
@@ -90,12 +242,17 @@ dich2$Uncertainty<-revalue(dich2$Uncertainty, c("Punishment.R1"=0, "Punishment.R
 
 #Merging both categorical variables in the same dataframe.
 dichm <- merge(dich1, dich2,by="row.names")
+#Creating Subset for H3 - Embezzlement Analyses.
+table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
+table(data1$Exclusion_doubts) #From the remaning 136, 32 Participants detected or expressed doubts about the Embezzlement.
+dichm_Intervention <- filter(dichm, Exclusion_doubts==0)
 
 ############PUNISHMENT CONTINUOUS###########
 library(reshape2)
 df1 <- melt(data1,
             id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
-                      "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z"), #ID variables - variables to keep but not split apart on.
+                      "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
+                      "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
             measure.vars=c('R1','R2','R3','R4'), #Categories.
             variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
             value.name="Punishment" #Name of DV.
@@ -117,11 +274,17 @@ df2$Uncertainty<-revalue(df2$Uncertainty, c("R1"=0, "R2"=1,"R3"=0,"R4"=1))
 #Merging both categorical variables in the same dataframe.
 dm <- merge(df1, df2,by="row.names")
 
+#Creating Subset for H3 - Embezzlement Analyses.
+table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
+table(data1$Exclusion_doubts) #From the remaning 136, 32 Participants detected or expressed doubts about the Embezzlement.
+dm_Intervention <- filter(dm, Exclusion_doubts==0)
+
 ############COMPENSATION CONTINUOUS###########
 library(reshape2)
 df3 <- melt(data1,
             id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
-                      "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z"), #ID variables - variables to keep but not split apart on.
+                      "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
+                      "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
             measure.vars=c('R1.Comp','R2.Comp','R3.Comp','R4.Comp'), #Categories.
             variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
             value.name="Compensation" #Name of DV.
@@ -142,6 +305,11 @@ df4$Uncertainty<-revalue(df4$Uncertainty, c("R1.Comp"=0, "R2.Comp"=1,"R3.Comp"=0
 
 #Merging both categorical variables in the same dataframe.
 dm2 <- merge(df3, df4,by="row.names")
+
+#Creating Subset for H3 - Embezzlement Analyses.
+table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
+table(data1$Exclusion_doubts) #From the remaning 136, 32 Participants detected or expressed doubts about the Embezzlement.
+dm2_Intervention <- filter(dm2, Exclusion_doubts==0)
 
 ################################################################################################################################
 ##############################################    DESCRIPTIVES STATISTICS    ################################################
@@ -282,7 +450,7 @@ anova(H1.RS1,H1.RS2) ##MODEL COMPARISON.
 
 
 ## H2a ## Moderation of JSs.
-H2a<- glmer(Punishment.x~Ambiguity*PerpetratorJS.c+Ambiguity*ObserverJS.c+ (1|ID), data=dichm,family = binomial(link = logit)) 
+H2a<- glmer(Punishment.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z+ (1|ID), data=dichm,family = binomial(link = logit)) 
 summary(H2a)
 plot(allEffects(H2a))
 
@@ -291,18 +459,18 @@ H2aORs <- cbind(Coeff.=fixef(H2a),OR=exp(fixef(H2a)),exp(H2aCIs))
 H2aORs
 
 ##H2a ## Simple Slope Analysis.
-dichm$HighOJS.c <- dichm$ObserverJS.c-OJSsd
-dichm$LowOJS.c <- dichm$ObserverJS.c+OJSsd
+dichm$HighOJS.z <- dichm$ObserverJS.z-1
+dichm$LowOJS.z <- dichm$ObserverJS.z+1
 dichm$Ambiguity.c<-revalue(dichm$Ambiguity, c('0'='-0.5','1'='0.5'))
 dichm$Uncertainty.c<-revalue(dichm$Uncertainty, c('0'='-0.5','1'='0.5'))
 
-H2a.high<- glmer(Punishment.x~Ambiguity.c*HighOJS.c+ (1|ID), data=dichm,family = binomial(link = logit))
+H2a.high<- glmer(Punishment.x~Ambiguity.c*HighOJS.z+ (1|ID), data=dichm,family = binomial(link = logit))
 summary(H2a.high)
 H2aHCIs <- confint(H2a.high,parm="beta_",level = 0.95) #Calculate 95%CIs for fixed effects b coefficients.
 H2aHORs <- cbind(Coeff.=fixef(H2a.high),OR=exp(fixef(H2a.high)),exp(H2aHCIs))
 H2aHORs
 
-H2a.low<- glmer(Punishment.x~Ambiguity.c*LowOJS.c+ (1|ID), data=dichm,family = binomial(link = logit))
+H2a.low<- glmer(Punishment.x~Ambiguity.c*LowOJS.z+ (1|ID), data=dichm,family = binomial(link = logit))
 summary(H2a.low)
 H2aLCIs <- confint(H2a.low,parm="beta_",level = 0.95) #Calculate 95%CIs for fixed effects b coefficients.
 H2aLORs <- cbind(Coeff.=fixef(H2a.low),OR=exp(fixef(H2a.low)),exp(H2aLCIs))
@@ -311,13 +479,22 @@ H2aLORs
 
 ##H2b##
 
-H2b<- glmer(Punishment.x~Uncertainty*BeneficiaryJS.c+ (1|ID), data=dichm,family = binomial(link = logit)) 
+H2b<- glmer(Punishment.x~Uncertainty*BeneficiaryJS.z+ (1|ID), data=dichm,family = binomial(link = logit)) 
 summary(H2b)
 plot(allEffects(mod2b))
 
 H2bCIs <- confint(H2b,parm="beta_",level = 0.95) #Calculate 95%CIs for fixed effects b coefficients.
 H2bORs <- cbind(Coeff.=fixef(H2b),OR=exp(fixef(H2b)),exp(H2bCIs))
 H2bORs
+
+##H3##
+#DV = Behavioral Coding.
+H3_BC <- glmer(InterDich~Punishment.x*Ambiguity+Punishment.x*Uncertainty + (1|ID), data=dichm_Intervention,family = binomial(link = logit))
+summary(H3_BC)
+
+#DV = Retrospective External Evaluation.
+H3_Retro <- glmer(InterDich_Retro~Punishment.x*Ambiguity+Punishment.x*Uncertainty + (1|ID), data=dichm_Intervention,family = binomial(link = logit))
+summary(H3_Retro)
 
 
 ##Plotting Effects from Logistic Regression.
@@ -397,6 +574,40 @@ plot(allEffects(EP2b))
 EC2b <- lmer(Compensation.x~Uncertainty*BeneficiaryJS.c + (1|ID), data=dm2) 
 summary(EC2b)
 plot(allEffects(EC2b))
+
+##H3## PUNISHMENT.
+#DV = Behavioral Coding.
+EP3_BC <- lm(MAXInterStrength~Punishment.x*Ambiguity+Punishment.x*Uncertainty, data=dm_Intervention)
+summary(EP3_BC)
+plot(allEffects(EP3_BC))
+
+#DV = Retrospective External Evaluation.
+EP3_Retro <- lm(MAXInterStrength_Retro~Punishment.x*Ambiguity+Punishment.x*Uncertainty, data=dm_Intervention)
+summary(EP3_Retro)
+plot(allEffects(EP3_Retro))
+
+#Effect size only in Ambiguity conditions.
+library(dplyr)
+dm_Intervention.f <- filter(dm_Intervention,Ambiguity==1)
+EP3Ambiguity_BC <- lm(MAXInterStrength~Punishment.x, data=dm_Intervention.f)
+summary(EP3Ambiguity_BC)
+
+EP3Ambiguity_Retro <- lm(MAXInterStrength_Retro~Punishment.x, data=dm_Intervention.f)
+summary(EP3Ambiguity_Retro)
+
+
+##H3## COMPENSATION.
+#DV = Behavioral Coding.
+EC3_BC <- lm(MAXInterStrength~Compensation.x*Ambiguity+Compensation.x*Uncertainty,data=dm2_Intervention)
+summary(EC3_BC)
+
+EC3_Retro <- lm(MAXInterStrength_Retro~Compensation.x*Ambiguity+Compensation.x*Uncertainty,data=dm2_Intervention)
+summary(EC3_Retro)
+
+
+
+
+
 
 
 
