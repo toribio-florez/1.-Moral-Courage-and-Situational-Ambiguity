@@ -95,11 +95,11 @@ data1[,grep("InterStrength_7_",colnames(data1),value=FALSE)]<-NULL #Delete inter
 data1$MAXInterStrength <- apply(data1[,grep("InterStrength_",colnames(data1),value=FALSE)],1,max,na.rm=TRUE)
 data1$MAXInterStrength <- replace(data1$MAXInterStrength,data1$MAXInterStrength=='-Inf', NA)
 
-table(data1$MAXInterStrength)
+table(data1$MAXInterStrength) #NOTE: Frequencies without exclusion based on Doubts about the staged Embezzlement.
 
 #DICHOTOMOUS.
 data1$InterDich <- ifelse(is.na(data1$MAXInterStrength),NA, ifelse(data1$MAXInterStrength==0,0,1))
-table(data1$InterDich)
+table(data1$InterDich) #NOTE: Frequencies without exclusion based on Doubts about the staged Embezzlement.
 
 ##############################################  INTERVENTION BEHAVIOR (RETROSPECTIVE EXTERNAL EVALUATION)  ################################################
 #DICHOTOMOUS: Retrospective evaluation from EX1, EX2 (Experimenter 1 and 2),
@@ -161,7 +161,6 @@ table(data1$InterDich_Retro)
 #2 = label the situation as wrong, immoral or fraud (_07),
 #3 = Stop the fraud, threat to report it (_08).
 
-library(dplyr)
 data1$EX1_A_06c <- recode(data1$RF01_A_06, '1'=1, '2'=0,.missing=0)
 data1$EX1_A_07c <- recode(data1$RF01_A_07, '1'=2, '2'=0,.missing=0)
 data1$EX1_A_08c <- recode(data1$RF01_A_08, '1'=3, '2'=0,.missing=0)
@@ -245,7 +244,7 @@ dichm <- merge(dich1, dich2,by="row.names")
 #Creating Subset for H3 - Embezzlement Analyses.
 table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
 table(data1$Exclusion_doubts) #From the remaning 136, 32 Participants detected or expressed doubts about the Embezzlement.
-dichm_Intervention <- filter(dichm, Exclusion_doubts==0)
+dichm_Intervention <- filter(dichm, Exclusion_doubts==0) #N = 104 * 4 = 416.
 
 ############PUNISHMENT CONTINUOUS###########
 library(reshape2)
@@ -277,7 +276,7 @@ dm <- merge(df1, df2,by="row.names")
 #Creating Subset for H3 - Embezzlement Analyses.
 table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
 table(data1$Exclusion_doubts) #From the remaning 136, 32 Participants detected or expressed doubts about the Embezzlement.
-dm_Intervention <- filter(dm, Exclusion_doubts==0)
+dm_Intervention <- filter(dm, Exclusion_doubts==0) #N = 104 * 4 = 416.
 
 ############COMPENSATION CONTINUOUS###########
 library(reshape2)
@@ -309,35 +308,32 @@ dm2 <- merge(df3, df4,by="row.names")
 #Creating Subset for H3 - Embezzlement Analyses.
 table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
 table(data1$Exclusion_doubts) #From the remaning 136, 32 Participants detected or expressed doubts about the Embezzlement.
-dm2_Intervention <- filter(dm2, Exclusion_doubts==0)
+dm2_Intervention <- filter(dm2, Exclusion_doubts==0) #N = 104 * 4 = 416.
 
 ################################################################################################################################
 ##############################################    DESCRIPTIVES STATISTICS    ################################################
 ################################################################################################################################
 
 ##SOCIODEMOGRAPHICS.
-summary(data1$SD01_01)
-table(data1$SD01_02)
-table(data1$SD01_03)
+summary(data1$SD01_01) #Age.
+Gender <- table(data1$SD01_02)  #Gender.
+Gender[1]/Gender[2]
+table(data1$SD01_03)   #Studies.
 
 #Plot for mapping missing values.
 install.packages("Amelia")
 library(Amelia)
 missmap(data1, main = "Missing values vs observed") 
 
-sum(is.na(dm$Punishment.x))   #Number of NAs in new file (N=684).
-sapply(data1,function(x) sum(is.na(x)))    #Number of NAs in original file (N=171).
-
-
 ################ DEPENDENT MEASURES ################
 #Dichotomous Punishment, probabilities per treatment.
 library(plyr)
 #Probabilities for Ambiguity Manipulation.
-freq1<-count(dich1,c("Ambiguity","Punishment"))
+freq1<-count(dichm,c("Ambiguity","Punishment.x"))
 freq1$Prob.<-freq1$freq/sum(dich1$Ambiguity==0)
 freq1
 #Probabilities for Uncertainty Manipulation.
-freq2<-count(dich2,c("Uncertainty","Punishment"))
+freq2<-count(dichm,c("Uncertainty","Punishment.x"))
 freq2$Prob.<-freq2$freq/sum(dich2$Uncertainty==0,na.rm = TRUE)
 freq2
 
@@ -354,24 +350,24 @@ mean(data1$R4.Comp,na.rm=TRUE)
 
 
 ################# JUSTICE SENSITIVITY ################
-#Bivariate correlations of JS.
+#Bivariate correlations of different JS.
 library(Hmisc)
-which(colnames(data1)=="ObserverJS")
-which(colnames(data1)=="BeneficiaryJS")
-JScorr <- rcorr(as.matrix(data1[,91:93]))
+JScorr <- rcorr(as.matrix(data1[,c("VictimJS","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
 JScorr
 
-which(colnames(data1)=="R1.Comp")
-which(colnames(data1)=="PerpetratorJS")
-JScorr2 <- rcorr(as.matrix(data1[,c(128,110,111,112,113)]))
-JScorr
-JScorr2
+#Bivariate correlations with DVs.
+# 3PPG: R1, R2, R3, R4, R1.Comp, R2.Comp, R3.Comp, R4.Comp.
+rcorr(as.matrix(data1[,c("R1","R2","R3","R4","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
+rcorr(as.matrix(data1[,c("R1.Comp","R2.Comp","R3.Comp","R4.Comp","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
+
+# INTERVENTION: "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro"
+rcorr(as.matrix(data1[,c("MAXInterStrength","MAXInterStrength_Retro","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
+
 
 #Chronbachs alpha.
-which(colnames(data1)=="JS02_01")
-which(colnames(data1)=="JS04_02")
 library(psych)
-alpha(as.matrix(data1[,12:17]))
+JSItems <- grep("JS0",colnames(data1),value=FALSE) #Number of Columns of JS Items, including VictimJS.
+alpha(as.matrix(data1[,JSItems[3]:JSItems[8]]))  #Reliability for JS scale, excluding VictimJS (i.e., 6 items).
 #Alpha = 0.80.
 
 #Simulation for plotting Normality of JS.
@@ -459,6 +455,7 @@ H2aORs <- cbind(Coeff.=fixef(H2a),OR=exp(fixef(H2a)),exp(H2aCIs))
 H2aORs
 
 ##H2a ## Simple Slope Analysis.
+library(plyr)
 dichm$HighOJS.z <- dichm$ObserverJS.z-1
 dichm$LowOJS.z <- dichm$ObserverJS.z+1
 dichm$Ambiguity.c<-revalue(dichm$Ambiguity, c('0'='-0.5','1'='0.5'))
@@ -505,15 +502,8 @@ http://data.library.virginia.edu/visualizing-the-effects-of-logistic-regression/
 ################################################################################################################################
 ##############################################           EXPLORATORY ANALYSIS          #########################################
 ################################################################################################################################
-library(Amelia)
-missmap(data1[19:88], main = "Missing values vs observed") 
-summary(data1[95:98])
-summary(data1[99:102])
-
 
 ##H1##
-
-library(ggplot2)
 EP1 <- lmer(Punishment.x~Ambiguity+Uncertainty + (1|ID), data=dm) 
 summary(EP1)
 plot(allEffects(EP1))
@@ -525,19 +515,9 @@ EC1 <- lmer(Compensation.x~Ambiguity+Uncertainty + (1|ID), data=dm2)
 summary(EC1)
 
 
-
-
-
-#Simple effects.
-library(phia)
-testInteractions(EC1, pairwise="Ambiguity", fixed="Uncertainty",adjustment="none")
-testInteractions(EC1, pairwise="Uncertainty", fixed="Ambiguity",adjustment="none")
-
-
-
 ##H2a##
 
-EP2a <- lmer(Punishment.x~Ambiguity*PerpetratorJS.c+Ambiguity*ObserverJS.c + (1|ID), data=dm) 
+EP2a <- lmer(Punishment.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm) 
 summary(EP2a)
 plot(allEffects(EP2a))
 
@@ -546,32 +526,32 @@ summary(EP2POWER)
 ?var
 ?chol
 
-EC2a <- lmer(Compensation.x~Ambiguity*PerpetratorJS.c+Ambiguity*ObserverJS.c + (1|ID), data=dm2) 
+EC2a <- lmer(Compensation.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm2) 
 summary(EC2a)
 plot(allEffects(EC2a))
 
 #Simple Slopes for H2a.
-dm$HighOJS.c <- dm$ObserverJS.c-sd1
-dm$LowOJS.c <- dm$ObserverJS.c+sd1
-dm2$HighOJS.c <- dm2$ObserverJS.c-sd1
-dm2$LowOJS.c <- dm2$ObserverJS.c+sd1
+dm$HighOJS.z <- dm$ObserverJS.z-1
+dm$LowOJS.z <- dm$ObserverJS.z+1
+dm2$HighOJS.z <- dm2$ObserverJS.z-1
+dm2$LowOJS.z <- dm2$ObserverJS.z+1
 dm$Ambiguity.c<-revalue(dm$Ambiguity, c('0'='-0.5','1'='0.5'))
 dm$Uncertainty.c<-revalue(dm$Uncertainty, c('0'='-0.5','1'='0.5'))
 dm2$Ambiguity.c<-revalue(dm2$Ambiguity, c('0'='-0.5','1'='0.5'))
 dm2$Uncertainty.c<-revalue(dm2$Uncertainty, c('0'='-0.5','1'='0.5'))
 
-EP2a.high <- lmer(Punishment.x~Ambiguity.c*HighOJS.c + (1|ID), data=dm) 
+EP2a.high <- lmer(Punishment.x~Ambiguity.c*HighOJS.z + (1|ID), data=dm) 
 summary(EP2a.high)
-EP2a.low <- lmer(Punishment.x~Ambiguity.c*LowOJS.c + (1|ID), data=dm) 
+EP2a.low <- lmer(Punishment.x~Ambiguity.c*LowOJS.z + (1|ID), data=dm) 
 summary(EP2a.low)
 
 ##H2b##
 
-EP2b <- lmer(Punishment.x~Uncertainty*BeneficiaryJS.c + (1|ID), data=dm) 
+EP2b <- lmer(Punishment.x~Uncertainty*BeneficiaryJS.z + (1|ID), data=dm) 
 summary(EP2b)
 plot(allEffects(EP2b))
 
-EC2b <- lmer(Compensation.x~Uncertainty*BeneficiaryJS.c + (1|ID), data=dm2) 
+EC2b <- lmer(Compensation.x~Uncertainty*BeneficiaryJS.z + (1|ID), data=dm2) 
 summary(EC2b)
 plot(allEffects(EC2b))
 
@@ -603,8 +583,6 @@ summary(EC3_BC)
 
 EC3_Retro <- lm(MAXInterStrength_Retro~Compensation.x*Ambiguity+Compensation.x*Uncertainty,data=dm2_Intervention)
 summary(EC3_Retro)
-
-
 
 
 

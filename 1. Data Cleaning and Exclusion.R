@@ -68,6 +68,7 @@ R402
 ################################################################################################################################
 
 #Data subset applying GENERAL EXCLUSION CRITERIA: Total N = 164.
+library(dplyr)
 data1 <- filter(rawdata.relabel, Excl1==0) %>% filter(Excl2==0) %>% select(
          SD01_01,SD01_02,SD01_03,SD01_03a,SD01_04, #Sociodemographics.
          DQ01,DQ02,  #Control Careless response.

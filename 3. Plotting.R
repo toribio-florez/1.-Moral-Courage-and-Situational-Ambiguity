@@ -1,11 +1,13 @@
 ################################################################################################################################
 ##############################################         STRATEGY METHOD          ################################################
 ################################################################################################################################
-
-##PLOTTING DECISION PATTERN ACROSS ROUNDS.
-#PUNISHMENT#
 library(reshape2)
 library(plyr)
+library(ggplot2)
+library(RColorBrewer)
+##PLOTTING DECISION PATTERN ACROSS ROUNDS.
+#PUNISHMENT#
+
 
 smp <- melt(data1,
             id.vars='ID', #ID variables - variables to keep but not split apart on.
@@ -17,7 +19,6 @@ smp <- melt(data1,
             value.name="Punishment" #Name of DV.
 )
 
-library(plyr)
 C1<-ddply(smp, .(Decisions), summarise,
           N    = length(Punishment),
           mean = mean(Punishment, na.rm=TRUE),
@@ -34,8 +35,7 @@ C1$Decisions <- revalue(C1$Decisions, c('DP02_01'=0,'DP03_01'=1,'DP04_01'=2,'DP0
                                         'DP18_01'=0,'DP19_01'=1,'DP20_01'=2,'DP21_01'=3,'DP22_01'=4,'DP23_01'=5,'DP24_01'=6,
                                         'DP26_01'=0,'DP27_01'=1,'DP28_01'=2,'DP29_01'=3,'DP30_01'=4,'DP31_01'=5,'DP32_01'=6))
 
-library(ggplot2)
-library(RColorBrewer)
+
 p1 <-ggplot(data=C1, aes(x=Decisions, y=mean, fill=Decisions))+
   facet_grid(.~Rounds)+
   geom_bar(position=position_dodge(),colour="black", stat="identity")+
@@ -108,7 +108,6 @@ print(punishcomp)
 
 
 #PUNISHMENT & COMPENSATION#
-library(reshape2)
 smpc <- melt(data1,
             id.vars='ID',
             measure.vars=c('DP02_01','DP03_01','DP04_01','DP05_01','DP06_01','DP07_01','DP08_01',
@@ -126,7 +125,6 @@ smpc <- melt(data1,
 smpc = cbind(smpc,Rounds=rep(smpc$Decisions))
 smpc = cbind(smpc,Punish.comp=rep(smpc$Decisions))
 
-library(plyr)
 smpc$Rounds <- revalue(smpc$Rounds, c('DP02_01'='Round 1','DP03_01'='Round 1','DP04_01'='Round 1','DP05_01'='Round 1','DP06_01'='Round 1','DP07_01'='Round 1','DP08_01'='Round 1',
                                       'DP10_01'='Round 2','DP11_01'='Round 2','DP12_01'='Round 2','DP13_01'='Round 2','DP14_01'='Round 2','DP15_01'='Round 2','DP16_01'='Round 2',
                                       'DP18_01'='Round 3','DP19_01'='Round 3','DP20_01'='Round 3','DP21_01'='Round 3','DP22_01'='Round 3','DP23_01'='Round 3','DP24_01'='Round 3',
@@ -156,7 +154,6 @@ smpc$Decisions <- revalue(smpc$Decisions, c('DP02_02'=0,'DP03_02'=1,'DP04_02'=2,
                                             'DP26_01'=0,'DP27_01'=1,'DP28_01'=2,'DP29_01'=3,'DP30_01'=4,'DP31_01'=5,'DP32_01'=6))
 
 
-library(plyr)
 C3<-ddply(smpc, .(Decisions,Rounds,Punish.comp), summarise,
           N    = length(DVs),
           mean = mean(DVs, na.rm=TRUE),
@@ -164,8 +161,6 @@ C3<-ddply(smpc, .(Decisions,Rounds,Punish.comp), summarise,
           se   = sd / sqrt(N))
 
 
-library(ggplot2)
-library(RColorBrewer)
 p3 <-ggplot(data=C3, aes(x=Decisions, y=mean, fill=Punish.comp))+
   facet_grid(.~Rounds)+
   geom_bar(position=position_dodge(),colour="black", stat="identity")+
@@ -249,8 +244,8 @@ PLOT2
 
 
 #H2#
-p1.EP2a <- plot_model(EP2a, type = "pred", terms = c("ObserverJS.c", "Ambiguity"),title=" ",
-                      axis.title=c("Observer JS","Punishment Intensity"),pretty=FALSE, colors = c("#404040","#CA0020"))+
+p1.EP2a <- plot_model(EP2a, type = "pred", terms = c("ObserverJS.z", "Ambiguity"),title=" ",
+                      axis.title=c("Observer JS (Z scores)","Punishment Intensity"),pretty=FALSE, colors = c("#404040","#CA0020"))+
   theme_bw()+theme(panel.grid.minor=element_blank(),
                    legend.title=element_text(size=14, face = "bold"), 
                    legend.text=element_text(size=14),
@@ -262,8 +257,8 @@ p1.EP2a <- plot_model(EP2a, type = "pred", terms = c("ObserverJS.c", "Ambiguity"
   scale_y_continuous(expand = c(0, 0),breaks=c(0,2,4,6,8,10,12,14,16,18),limits=c(0,18))
 p1.EP2a
 
-p1.EC2a <- plot_model(EC2a, type = "pred", terms = c("ObserverJS.c", "Ambiguity"),title=" ",
-                      axis.title=c("Observer JS","Punishment Intensity"),pretty=FALSE, colors = c("#404040","#2c7fb8"))+
+p1.EC2a <- plot_model(EC2a, type = "pred", terms = c("ObserverJS.z", "Ambiguity"),title=" ",
+                      axis.title=c("Observer JS (Z scores)","Compensation Intensity"),pretty=FALSE, colors = c("#404040","#2c7fb8"))+
   theme_bw()+theme(panel.grid.minor=element_blank(),
                    legend.title=element_text(size=14, face = "bold"), 
                    legend.text=element_text(size=14),
@@ -277,8 +272,8 @@ p1.EC2a <- plot_model(EC2a, type = "pred", terms = c("ObserverJS.c", "Ambiguity"
 p1.EC2a
 
 #H3#
-p1.EP3 <- plot_model(EP3, type = "eff", terms = c("Punishment.x", "Ambiguity"),title=" ",
-                      axis.title=c("Punishment","Intervention Intensity (Retrosp.)"),pretty=FALSE, colors = c("#404040","#CA0020"))+
+p1.EP3_BC <- plot_model(EP3_BC, type = "eff", terms = c("Punishment.x", "Ambiguity"),title=" ",
+                      axis.title=c("Punishment","Intervention (Behavioral Coding)"),pretty=FALSE, colors = c("#404040","#CA0020"))+
   theme_bw()+theme(panel.grid.minor=element_blank(),
                    legend.title=element_text(size=14, face = "bold"), 
                    legend.text=element_text(size=14),
@@ -288,7 +283,7 @@ p1.EP3 <- plot_model(EP3, type = "eff", terms = c("Punishment.x", "Ambiguity"),t
                    axis.text.x=element_text(size=16),
                    strip.text.x = element_text(size = 12))+
   scale_y_continuous(expand = c(0, 0),limits=c(-2,2))
-p1.EP3
+p1.EP3_BC
 
 p2.EP3 <- plot_model(EP3, type = "eff", terms = c("Punishment.x", "Uncertainty"),title=" ",
                      axis.title=c("Punishment"," "),pretty=FALSE, colors = c("#404040","#CA0020"))+
