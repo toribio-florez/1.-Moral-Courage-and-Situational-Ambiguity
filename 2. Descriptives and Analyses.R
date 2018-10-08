@@ -210,6 +210,11 @@ data1$MAXInterStrength_Retro <-  apply(data1[c("EX1_A_06c", "EX1_A_07c", "EX1_A_
 table(data1$MAXInterStrength_Retro)
 
 
+##############################################   FEAR OF INVALIDITY  ################################################
+data1$PF01_12 <- recode(data1$PF01_12, '1'=6, '2'=5,'3'=4,'4'=3,'5'=2,'6'=1,.missing=0) #In the logfile PF01_12 does not appear as reversed, but it should be reversed-coded.
+library(psych)
+data1$Fear_of_Invalidity <- rowMeans(data1[c("PF01_12","PF01_13","PF01_14","PF01_15")],na.rm=TRUE)
+data1$Fear_of_Invalidity.z <- scale(data1$Fear_of_Invalidity)[,]  #Standardized Fear_of_Invalidity.
 
 
 
@@ -220,6 +225,7 @@ library(reshape2)
 dich1 <- melt(data1,
               id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
                         "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
+                        "Fear_of_Invalidity.z",
                         "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
               measure.vars=c('Punishment.R1','Punishment.R2','Punishment.R3','Punishment.R4'), #Categories.
               variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
@@ -251,6 +257,7 @@ library(reshape2)
 df1 <- melt(data1,
             id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
                       "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
+                      "Fear_of_Invalidity.z",
                       "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
             measure.vars=c('R1','R2','R3','R4'), #Categories.
             variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
@@ -283,6 +290,7 @@ library(reshape2)
 df3 <- melt(data1,
             id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
                       "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
+                      "Fear_of_Invalidity.z",
                       "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
             measure.vars=c('R1.Comp','R2.Comp','R3.Comp','R4.Comp'), #Categories.
             variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
@@ -394,6 +402,26 @@ skewness(OJS.sim)
 kurtosis(OJS.sim)
 hist(OJS.sim)
 
+#################FEAR OF INVALIDITY###################
+#Bivariate correlations of different JS.
+library(Hmisc)
+rcorr(as.matrix(data1[,c("Fear_of_Invalidity","VictimJS","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
+
+
+#Bivariate correlations with DVs.
+# 3PPG: R1, R2, R3, R4, R1.Comp, R2.Comp, R3.Comp, R4.Comp.
+rcorr(as.matrix(data1[,c("Fear_of_Invalidity","R1","R2","R3","R4")]))
+rcorr(as.matrix(data1[,c("Fear_of_Invalidity","R1.Comp","R2.Comp","R3.Comp","R4.Comp")]))
+
+# INTERVENTION: "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro"
+rcorr(as.matrix(data1[,c("Fear_of_Invalidity","MAXInterStrength","MAXInterStrength_Retro")]))
+
+
+#Chronbachs alpha.
+library(psych)
+FoIitems <- grep("PF01_",colnames(data1),value=FALSE) #Number of Columns of FoI items.
+alpha(as.matrix(data1[,FoIitems[1]:FoIitems[4]]))  #Reliability for FoI scale.
+#Alpha = .
 
 ################################################################################################################################
 ##############################################           MAIN ANALYSIS          ################################################
@@ -521,14 +549,21 @@ EP2a <- lmer(Punishment.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|
 summary(EP2a)
 plot(allEffects(EP2a))
 
+EC2a <- lmer(Compensation.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm2) 
+summary(EC2a)
+plot(allEffects(EC2a))
+
+#Test with Fear of Invalidity.
+FearInvalidity <- lmer(Punishment.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + Ambiguity*Fear_of_Invalidity.z+(1|ID), data=dm) 
+summary(FearInvalidity)
+plot(allEffects(EP2a))
+
 EP2POWER <- lmer(Punishment.x~Ambiguity*ObserverJS.c + (1|ID), data=dm) 
 summary(EP2POWER)
 ?var
 ?chol
 
-EC2a <- lmer(Compensation.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm2) 
-summary(EC2a)
-plot(allEffects(EC2a))
+
 
 #Simple Slopes for H2a.
 dm$HighOJS.z <- dm$ObserverJS.z-1

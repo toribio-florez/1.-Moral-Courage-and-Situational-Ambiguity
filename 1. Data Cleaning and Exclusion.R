@@ -77,6 +77,7 @@ data1 <- filter(rawdata.relabel, Excl1==0) %>% filter(Excl2==0) %>% select(
          JS02_01,JS02_02,  #Observer JS.
          JS03_01,JS03_02,  #Beneficiary JS.
          JS04_01,JS04_02,  #Perpetrator JS.
+         PF01_12,PF01_13,PF01_14,PF01_15, #Fear of Invalidity.
          DP00_01,DP00_02,  #3GGP Instructions Comprehension checks.
          DP01_01,DP02_01,DP02_02,DP03_01,DP03_02,DP04_01,DP04_02,DP05_01,DP05_02,DP06_01,DP06_02,DP07_01,DP07_02,DP08_01,DP08_02,  #3PPG Round 1.
          DP09_01,DP10_01,DP10_02,DP11_01,DP11_02,DP12_01,DP12_02,DP13_01,DP13_02,DP14_01,DP14_02,DP15_01,DP15_02,DP16_01,DP16_02,  #3PPG Round 2.
