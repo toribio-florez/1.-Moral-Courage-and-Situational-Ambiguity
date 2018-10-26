@@ -36,10 +36,39 @@ data1$R2<-rowSums(data1[,c('DP10_01','DP11_01','DP12_01','DP13_01','DP14_01')],n
 data1$R3<-rowSums(data1[,c('DP18_01','DP19_01','DP20_01','DP21_01','DP22_01')],na.rm = TRUE)
 data1$R4<-rowSums(data1[,c('DP26_01','DP27_01','DP28_01','DP29_01','DP30_01')],na.rm = TRUE)
 
+#Forcing to NA those participants that had more than one missing value per Round.
+library(dplyr)
+which(data1 %>% select('DP02_01','DP03_01','DP04_01','DP05_01','DP06_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 1: Participant 119.
+data1[119,"R1"]<-NA
+which(data1 %>% select('DP10_01','DP11_01','DP12_01','DP13_01','DP14_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 2: Participants 16, 119.
+data1[16,"R2"]<-NA
+data1[119,"R2"]<-NA
+which(data1 %>% select('DP18_01','DP19_01','DP20_01','DP21_01','DP22_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 3: Participant 119.
+data1[119,"R3"]<-NA
+which(data1 %>% select('DP26_01','DP27_01','DP28_01','DP29_01','DP30_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 4: Participant 119.
+data1[119,"R4"]<-NA
+
 data1$R1.Comp<-rowSums(data1[,c('DP02_02','DP03_02','DP04_02','DP05_02','DP06_02')],na.rm = TRUE)
 data1$R2.Comp<-rowSums(data1[,c('DP10_02','DP11_02','DP12_02','DP13_02','DP14_02')],na.rm = TRUE)
 data1$R3.Comp<-rowSums(data1[,c('DP18_02','DP19_02','DP20_02','DP21_02','DP22_02')],na.rm = TRUE)
 data1$R4.Comp<-rowSums(data1[,c('DP26_02','DP27_02','DP28_02','DP29_02','DP30_02')],na.rm = TRUE)
+
+which(data1 %>% select('DP02_02','DP03_02','DP04_02','DP05_02','DP06_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 1: Participant 119.
+data1[119,"R1.Comp"]<-NA
+which(data1 %>% select('DP10_02','DP11_02','DP12_02','DP13_02','DP14_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 2: Participant 119.
+data1[119,"R2.Comp"]<-NA
+which(data1 %>% select('DP18_02','DP19_02','DP20_02','DP21_02','DP22_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 3: Participant 119.
+data1[119,"R3.Comp"]<-NA
+which(data1 %>% select('DP26_02','DP27_02','DP28_02','DP29_02','DP30_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
+#Round 4: Participant 119.
+data1[119,"R4.Comp"]<-NA
 
 #For Person A allocating from 0 to 6 coins.
 data1$R1b<-rowSums(data1[,c('DP02_01','DP03_01','DP04_01','DP05_01','DP06_01','DP07_01','DP08_01')],na.rm = TRUE)
@@ -53,10 +82,10 @@ data1$R3b.Comp<-rowSums(data1[,c('DP18_02','DP19_02','DP20_02','DP21_02','DP22_0
 data1$R4b.Comp<-rowSums(data1[,c('DP26_02','DP27_02','DP28_02','DP29_02','DP30_02','DP31_02','DP32_02')],na.rm = TRUE)
 
 #PUNISHMENT: DICHOTOMOUS.
-data1$Punishment.R1<-ifelse(data1$R1>0,1,0)
-data1$Punishment.R2<-ifelse(data1$R2>0,1,0)
-data1$Punishment.R3<-ifelse(data1$R3>0,1,0)
-data1$Punishment.R4<-ifelse(data1$R4>0,1,0)
+data1$Punishment.R1<-ifelse(data1$R1>0,1,ifelse(is.na(data1$R1),NA,0))
+data1$Punishment.R2<-ifelse(data1$R2>0,1,ifelse(is.na(data1$R1),NA,0))
+data1$Punishment.R3<-ifelse(data1$R3>0,1,ifelse(is.na(data1$R1),NA,0))
+data1$Punishment.R4<-ifelse(data1$R4>0,1,ifelse(is.na(data1$R1),NA,0))
 
 table(data1$Punishment.R1) #Frequencies.
 table(data1$Punishment.R2)
@@ -323,10 +352,14 @@ dm2_Intervention <- filter(dm2, Exclusion_doubts==0) #N = 104 * 4 = 416.
 ################################################################################################################################
 
 ##SOCIODEMOGRAPHICS.
-summary(data1$SD01_01) #Age.
-Gender <- table(data1$SD01_02)  #Gender.
-Gender[1]/Gender[2]
-table(data1$SD01_03)   #Studies.
+#GENDER.
+data1$SD01_02 <- factor(data1$SD01_02,levels = c(1,2), labels = c("Male","Female"))
+table(data1$SD01_02)/nrow(data1)
+#AGE.
+summary(data1$SD01_01)
+sd(data1$SD01_01,na.rm = TRUE)
+#STUDIES.
+table(data1$SD01_03)
 
 #Plot for mapping missing values.
 install.packages("Amelia")
@@ -375,7 +408,7 @@ rcorr(as.matrix(data1[,c("MAXInterStrength","MAXInterStrength_Retro","ObserverJS
 #Chronbachs alpha.
 library(psych)
 JSItems <- grep("JS0",colnames(data1),value=FALSE) #Number of Columns of JS Items, including VictimJS.
-alpha(as.matrix(data1[,JSItems[3]:JSItems[8]]))  #Reliability for JS scale, excluding VictimJS (i.e., 6 items).
+alpha(as.matrix(data1[,JSItems[7]:JSItems[8]]))  #Reliability for JS scale, excluding VictimJS (i.e., 6 items).
 #Alpha = 0.80.
 
 #Simulation for plotting Normality of JS.
@@ -513,6 +546,9 @@ H2bORs <- cbind(Coeff.=fixef(H2b),OR=exp(fixef(H2b)),exp(H2bCIs))
 H2bORs
 
 ##H3##
+#Exclude cases based on Exclusion_Doubts.
+
+
 #DV = Behavioral Coding.
 H3_BC <- glmer(InterDich~Punishment.x*Ambiguity+Punishment.x*Uncertainty + (1|ID), data=dichm_Intervention,family = binomial(link = logit))
 summary(H3_BC)
@@ -620,14 +656,45 @@ EC3_Retro <- lm(MAXInterStrength_Retro~Compensation.x*Ambiguity+Compensation.x*U
 summary(EC3_Retro)
 
 
+###############################################################################################################################
+
+####INFLUENCE OF TYPES OF INTERVENTION IN 3PPG ON EMBEZZLEMENT INTERVENTION###
+dm_Intervention[["Row.names"]] <- NULL
+dm2_Intervention[["Row.names"]] <- NULL
+
+dm_PC <- merge(dm_Intervention, dm2_Intervention[["Compensation.x"]],by="row.names")
+
+dm_PC$PCDiff <- dm_PC$Punishment.x-dm_PC$y
+
+dm_PC$Type_Intervention <- ifelse(dm_PC[["Punishment.x"]]==0&dm_PC[["y"]]==0,0,
+                                     ifelse(dm_PC[["PCDiff"]]==0,1,
+                                            ifelse(dm_PC[["PCDiff"]]>0,2,
+                                                   ifelse(dm_PC[["PCDiff"]]<0,3,NA))))
+dm_PC$Type_Intervention<-as.factor(dm_PC$Type_Intervention)
+library(plyr)
+dm_PC$Type_Intervention <- revalue(dm_PC$Type_Intervention, c("0"="No intervention", "1"="P = C","2"="P > C","3"="P < C"))
 
 
 
 
+mEPC <- lm(MAXInterStrength~PCDiff*Ambiguity+PCDiff*Uncertainty, data=dm_PC)
+summary(mEPC)
+plot(allEffects(mEPC))
+mEPC_Types <- glm(InterDich~Type_Intervention, data=dm_PC,family = binomial(link = logit))
+summary(mEPC_Types)
+
+plot(allEffects(EP3_BC))
 
 
-------------------------------------------------------------------------------------------------------------------------
   
+  
+  
+  
+  
+  
+  
+  
+
   #CHECKING CATEGORICAL VARIABLES.
   contrasts(df1$SD01_01)  #Shows how categorical variables are dummyfied by R.
 
