@@ -94,22 +94,62 @@ table(data1$Punishment.R4)
 
 ##############################################  INTERVENTION BEHAVIOR (BEHAVIORAL CODING) ################################################
 #CONTINUOUS.
-intervCol <- grep("ntervention",colnames(data1),value=FALSE)   #Column numbers of Intervention Ratings for every Embezzlement stage.
+intervCol <- c(grep("ntervention_",colnames(data1),value=FALSE))   #Column numbers of Intervention Ratings for every Embezzlement stage.
+intervCol
+#Original Inter-rater reliability: Weighted Kappa.
+#http://www.cookbook-r.com/Statistical_analysis/Inter-rater_reliability/
+library(irr)
+IRR_4 <- kappa2(data1[,intervCol[1]:intervCol[2]], weight = "squared")
+IRR_4 #Interrater Reliability for Phase 4.
+IRR_5a <- kappa2(data1[,intervCol[3]:intervCol[4]], weight = "squared")
+IRR_5a #Interrater Reliability for Phase 5a.
+IRR_5b <- kappa2(data1[,intervCol[5]:intervCol[6]], weight = "squared")
+IRR_5b #Interrater Reliability for Phase 5a. No variance on Rater 1 (D).
+IRR_6a <- kappa2(data1[,intervCol[7]:intervCol[8]], weight = "squared")
+IRR_6a #Interrater Reliability for Phase 6a.
+IRR_6b <- kappa2(data1[,intervCol[9]:intervCol[10]], weight = "squared")
+IRR_6b #Interrater Reliability for Phase 6b.
+IRR_6c <- kappa2(data1[,intervCol[11]:intervCol[12]], weight = "squared")
+IRR_6c #Interrater Reliability for Phase 6c. No variance on Rater 1 (D) and Rater 2 (IG).
+IRR_6d <- kappa2(data1[,intervCol[13]:intervCol[14]], weight = "squared")
+IRR_6d #Interrater Reliability for Phase 6c.
+IRR_8 <- kappa2(data1[,intervCol[15]:intervCol[16]], weight = "squared")
+IRR_8 #Interrater Reliability for Phase 6c.
 
-#Aggregate ratings across raters for each Phase.
-data1$InterStrength_4 <- rowMeans(data1[,intervCol[1]:intervCol[2]],na.rm=TRUE)
-data1$InterStrength_5a <- rowMeans(data1[,intervCol[3]:intervCol[4]],na.rm=TRUE)
-data1$InterStrength_5b <- rowMeans(data1[,intervCol[5]:intervCol[6]],na.rm=TRUE)
-data1$InterStrength_6a <- rowMeans(data1[,intervCol[7]:intervCol[8]],na.rm=TRUE)
-data1$InterStrength_6b <- rowMeans(data1[,intervCol[9]:intervCol[10]],na.rm=TRUE)
-data1$InterStrength_6c <- rowMeans(data1[,intervCol[11]:intervCol[12]],na.rm=TRUE)
-data1$InterStrength_6d <- rowMeans(data1[,intervCol[13]:intervCol[14]],na.rm=TRUE)
-data1$InterStrength_8 <- rowMeans(data1[,intervCol[15]:intervCol[16]],na.rm=TRUE)
+table(data1[,intervCol[5]] == data1[,intervCol[6]])*100/130
+1*100/134
 
-sapply(data1[grep("ntervention",colnames(data1),value=FALSE)],
-       function(x) table(is.na(x)))
-sapply(data1[grep("InterStrength_",colnames(data1),value=FALSE)],
-       function(x) table(is.na(x)))
+#Original Inter-rater reliability: ICC (2,1) Absolute Agreement.
+IRR_4 <- icc(data1[,intervCol[1]:intervCol[2]],model="twoway",type="agreement",unit="single")
+IRR_4 #Interrater Reliability for Phase 4.
+IRR_5a <- icc(data1[,intervCol[3]:intervCol[4]],model="twoway",type="agreement",unit="single")
+IRR_5a #Interrater Reliability for Phase 5a.
+IRR_5b <- icc(data1[,intervCol[5]:intervCol[6]],model="twoway",type="agreement",unit="single")
+data1[,intervCol[5]] #No variance on Rater 1 (D).
+IRR_5b #Interrater Reliability for Phase 5b.
+IRR_6a <- icc(data1[,intervCol[7]:intervCol[8]],model="twoway",type="agreement",unit="single")
+IRR_6a #Interrater Reliability for Phase 6a.
+IRR_6b <- icc(data1[,intervCol[9]:intervCol[10]],model="twoway",type="agreement",unit="single")
+IRR_6b #Interrater Reliability for Phase 6b.
+IRR_6c <- icc(data1[,intervCol[11]:intervCol[12]],model="twoway",type="agreement",unit="single")
+data1[,intervCol[11]] #No variance on Rater 1 (D).
+data1[,intervCol[12]] #No variance on Rater 2 (IG).
+IRR_6c #Interrater Reliability for Phase 6c.
+IRR_6d <- icc(data1[,intervCol[13]:intervCol[14]],model="twoway",type="agreement",unit="single")
+IRR_6d #Interrater Reliability for Phase 6d.
+IRR_8 <- icc(data1[,intervCol[15]:intervCol[16]],model="twoway",type="agreement",unit="single")
+IRR_8 #Interrater Reliability for Phase 8.
+
+#Add InterventionRecode by Amelie and Julia of cases of interrater disagreement. 
+#See SPSS Syntax "Intervention (Recode Syntax - Julia).sps".
+interv.recode <- read.csv("Intervention (Recoded).csv",header=TRUE,sep=";",dec=",",na.strings=c("NA","","-9"),row.names=NULL)
+interv.recode[,2:10]<-NULL
+colnames(interv.recode)[colnames(interv.recode)=="Intervention_vid"] <- "Interv_recoded"
+colnames(interv.recode)[colnames(interv.recode)=="ï..TN"] <- "TN"
+data1<-merge(interv.recode,data1,by="TN",all.y=T)
+
+#Values 99 in Intervention_vid belong to disagreements between raters and were recoded by Amelie and Julia. 
+#The remaining cases were not recoded because they were excluded clases based on Exclusion_doubts.
 
 #Create Phase 7 - Project Leader's rating when there was no videorecording.
 data1$InterStrength_7_1 <- ifelse(data1$RF04_A_06==1,1,0)
@@ -121,7 +161,7 @@ data1$InterStrength_7 <- rowSums(data1[,grep("InterStrength_7_",colnames(data1),
 data1[,grep("InterStrength_7_",colnames(data1),value=FALSE)]<-NULL #Delete intermediate variables.
 
 #Maximum Intervention Strength across Phases.
-data1$MAXInterStrength <- apply(data1[,grep("InterStrength_",colnames(data1),value=FALSE)],1,max,na.rm=TRUE)
+data1$MAXInterStrength <- apply(data1[,c("Interv_recoded","InterStrength_7")],1,max,na.rm=TRUE)
 data1$MAXInterStrength <- replace(data1$MAXInterStrength,data1$MAXInterStrength=='-Inf', NA)
 
 table(data1$MAXInterStrength) #NOTE: Frequencies without exclusion based on Doubts about the staged Embezzlement.

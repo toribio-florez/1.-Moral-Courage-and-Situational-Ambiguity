@@ -3,8 +3,8 @@
 ################################################################################################################################
 
 rawdata.relabel <- read.csv("Data_Study2_T1T2_31_08_2018.csv",header=TRUE,sep=";",dec=",",na.strings=c("NA","","-9"),row.names=NULL)
-
-
+colnames(rawdata.relabel)[colnames(rawdata.relabel)=="ï..TN"] <- "TN"
+  
 #If it is not specified that DECIMALS are indicated by ",", R will identify variables with commas as FACTORS or CHARACTERS.
 #For transforming from FACTOR to NUMERIC:
 for(i in c(ColumnA:ColumnX)) {                                
@@ -18,7 +18,6 @@ for(i in c(ColumnA:ColumnX)) {
 table(rawdata.relabel$DQ01)
 table(rawdata.relabel$DQ02)
 rawdata.relabel$Excl1<-ifelse(rawdata.relabel$DQ01&rawdata.relabel$DQ02<=2,1,0) 
-
 table(rawdata.relabel$Excl1) #2 people are excluded based on self-report data quality.
 table(is.na(rawdata.relabel$Excl1)) #10 NAs, 4 of them with NAs on DQ01 or DQ02.
 
@@ -69,7 +68,8 @@ R402
 
 #Data subset applying GENERAL EXCLUSION CRITERIA: Total N = 164.
 library(dplyr)
-data1 <- filter(rawdata.relabel, Excl1==0) %>% filter(Excl2==0) %>% select(
+data_base <- filter(rawdata.relabel, Excl1==0) %>% filter(Excl2==0) %>% select(
+         TN,
          SD01_01,SD01_02,SD01_03,SD01_03a,SD01_04, #Sociodemographics.
          DQ01,DQ02,  #Control Careless response.
          KO01_01,KO02_01,  #Attention checks.
@@ -111,6 +111,7 @@ data1 <- filter(rawdata.relabel, Excl1==0) %>% filter(Excl2==0) %>% select(
          TIME_SUM_T1,   #Experiment Duration.
          KO01_01,KO02_01     #Concentration Items.
   )
+data1 <- data_base
 
 write.csv2(data1, file = "Data Study2 T1&T2 (Analyses File).csv")
 
