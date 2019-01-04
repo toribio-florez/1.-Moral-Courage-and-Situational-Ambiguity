@@ -111,6 +111,7 @@ data_base <- filter(rawdata.relabel, Excl1==0) %>% filter(Excl2==0) %>% select(
          TIME_SUM_T1,   #Experiment Duration.
          KO01_01,KO02_01     #Concentration Items.
   )
+
 data1 <- data_base
 
 write.csv2(data1, file = "Data Study2 T1&T2 (Analyses File).csv")

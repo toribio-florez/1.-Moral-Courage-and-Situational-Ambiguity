@@ -12,13 +12,9 @@ data1$ID <- seq.int(nrow(data1))
 #Calculating and Standardizing aggregated scores of JS.
 library(psych)
 data1$VictimJS <- rowMeans(data1[c("JS01_01","JS01_02")],na.rm=TRUE)  #Victim JS.
-data1$VictimJS.z <- scale(data1$VictimJS)[,]  #Standardized Victim JS.
 data1$ObserverJS <- rowMeans(data1[c("JS02_01","JS02_02")],na.rm=TRUE)  #Observer JS.
-data1$ObserverJS.z <- scale(data1$ObserverJS)[,] #Standardized Observer JS.
 data1$BeneficiaryJS <- rowMeans(data1[c("JS03_01","JS03_02")],na.rm=TRUE) #Beneficiary JS.
-data1$BeneficiaryJS.z <- scale(data1$BeneficiaryJS)[,] #Standardized Beneficiary JS.
 data1$PerpetratorJS <- rowMeans(data1[c("JS04_01","JS04_02")],na.rm=TRUE)  #Perpetrator JS.
-data1$PerpetratorJS.z <- scale(data1$PerpetratorJS)[,]  #Perpetrator JS.
 
 OJSm <- mean(data1$ObserverJS,na.rm=TRUE)
 OJSsd <- sd(data1$ObserverJS,na.rm=TRUE)
@@ -32,43 +28,51 @@ BJSsd <- sd(data1$BeneficiaryJS,na.rm=TRUE)
 #Calculate Total PUNISHMENT/COMPENSATION in each Round across decisions.
 #For Person A allocating from 0 to 4 coins.
 data1$R1<-rowSums(data1[,c('DP02_01','DP03_01','DP04_01','DP05_01','DP06_01')],na.rm = TRUE)
+data1$R1.z <- scale(data1$R1)[,]
 data1$R2<-rowSums(data1[,c('DP10_01','DP11_01','DP12_01','DP13_01','DP14_01')],na.rm = TRUE)
+data1$R2.z <- scale(data1$R2)[,]
 data1$R3<-rowSums(data1[,c('DP18_01','DP19_01','DP20_01','DP21_01','DP22_01')],na.rm = TRUE)
+data1$R3.z <- scale(data1$R3)[,]
 data1$R4<-rowSums(data1[,c('DP26_01','DP27_01','DP28_01','DP29_01','DP30_01')],na.rm = TRUE)
+data1$R4.z <- scale(data1$R4)[,]
 
 #Forcing to NA those participants that had more than one missing value per Round.
 library(dplyr)
 which(data1 %>% select('DP02_01','DP03_01','DP04_01','DP05_01','DP06_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 1: Participant 119.
-data1[119,"R1"]<-NA
+data1[119,c("R1","R1.z")]<-NA
 which(data1 %>% select('DP10_01','DP11_01','DP12_01','DP13_01','DP14_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 2: Participants 16, 119.
-data1[16,"R2"]<-NA
-data1[119,"R2"]<-NA
+data1[16,c("R2","R2.z")]<-NA
+data1[119,c("R2","R2.z")]<-NA
 which(data1 %>% select('DP18_01','DP19_01','DP20_01','DP21_01','DP22_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 3: Participant 119.
-data1[119,"R3"]<-NA
+data1[119,c("R3","R3.z")]<-NA
 which(data1 %>% select('DP26_01','DP27_01','DP28_01','DP29_01','DP30_01') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 4: Participant 119.
-data1[119,"R4"]<-NA
+data1[119,c("R4","R4.z")]<-NA
 
 data1$R1.Comp<-rowSums(data1[,c('DP02_02','DP03_02','DP04_02','DP05_02','DP06_02')],na.rm = TRUE)
+data1$R1.Comp.z <- scale(data1$R1.Comp)[,]
 data1$R2.Comp<-rowSums(data1[,c('DP10_02','DP11_02','DP12_02','DP13_02','DP14_02')],na.rm = TRUE)
+data1$R2.Comp.z <- scale(data1$R2.Comp)[,]
 data1$R3.Comp<-rowSums(data1[,c('DP18_02','DP19_02','DP20_02','DP21_02','DP22_02')],na.rm = TRUE)
+data1$R3.Comp.z <- scale(data1$R3.Comp)[,]
 data1$R4.Comp<-rowSums(data1[,c('DP26_02','DP27_02','DP28_02','DP29_02','DP30_02')],na.rm = TRUE)
+data1$R4.Comp.z <- scale(data1$R4.Comp)[,]
 
 which(data1 %>% select('DP02_02','DP03_02','DP04_02','DP05_02','DP06_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 1: Participant 119.
-data1[119,"R1.Comp"]<-NA
+data1[119,c("R1.Comp","R1.Comp.z")]<-NA
 which(data1 %>% select('DP10_02','DP11_02','DP12_02','DP13_02','DP14_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 2: Participant 119.
-data1[119,"R2.Comp"]<-NA
+data1[119,c("R2.Comp","R2.Comp.z")]<-NA
 which(data1 %>% select('DP18_02','DP19_02','DP20_02','DP21_02','DP22_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 3: Participant 119.
-data1[119,"R3.Comp"]<-NA
+data1[119,c("R3.Comp","R3.Comp.z")]<-NA
 which(data1 %>% select('DP26_02','DP27_02','DP28_02','DP29_02','DP30_02') %>% apply(MARGIN = 1, function(x) sum(is.na(x)))>1)
 #Round 4: Participant 119.
-data1[119,"R4.Comp"]<-NA
+data1[119,c("R4.Comp","R4.Comp.z")]<-NA
 
 #For Person A allocating from 0 to 6 coins.
 data1$R1b<-rowSums(data1[,c('DP02_01','DP03_01','DP04_01','DP05_01','DP06_01','DP07_01','DP08_01')],na.rm = TRUE)
@@ -87,10 +91,10 @@ data1$Punishment.R2<-ifelse(data1$R2>0,1,ifelse(is.na(data1$R1),NA,0))
 data1$Punishment.R3<-ifelse(data1$R3>0,1,ifelse(is.na(data1$R1),NA,0))
 data1$Punishment.R4<-ifelse(data1$R4>0,1,ifelse(is.na(data1$R1),NA,0))
 
-table(data1$Punishment.R1) #Frequencies.
-table(data1$Punishment.R2)
-table(data1$Punishment.R3)
-table(data1$Punishment.R4)
+table(data1$Punishment.R1)/nrow(data1) #Frequencies.
+table(data1$Punishment.R2)/nrow(data1)
+table(data1$Punishment.R3)/nrow(data1)
+table(data1$Punishment.R4)/nrow(data1)
 
 ##############################################  INTERVENTION BEHAVIOR (BEHAVIORAL CODING) ################################################
 #CONTINUOUS.
@@ -116,8 +120,6 @@ IRR_6d #Interrater Reliability for Phase 6c.
 IRR_8 <- kappa2(data1[,intervCol[15]:intervCol[16]], weight = "squared")
 IRR_8 #Interrater Reliability for Phase 6c.
 
-table(data1[,intervCol[5]] == data1[,intervCol[6]])*100/130
-1*100/134
 
 #Original Inter-rater reliability: ICC (2,1) Absolute Agreement.
 IRR_4 <- icc(data1[,intervCol[1]:intervCol[2]],model="twoway",type="agreement",unit="single")
@@ -149,7 +151,7 @@ colnames(interv.recode)[colnames(interv.recode)=="ï..TN"] <- "TN"
 data1<-merge(interv.recode,data1,by="TN",all.y=T)
 
 #Values 99 in Intervention_vid belong to disagreements between raters and were recoded by Amelie and Julia. 
-#The remaining cases were not recoded because they were excluded clases based on Exclusion_doubts.
+#The remaining cases were not recoded because they were excluded cases based on Exclusion_doubts.
 
 #Create Phase 7 - Project Leader's rating when there was no videorecording.
 data1$InterStrength_7_1 <- ifelse(data1$RF04_A_06==1,1,0)
@@ -293,9 +295,9 @@ data1$Fear_of_Invalidity.z <- scale(data1$Fear_of_Invalidity)[,]  #Standardized 
 library(reshape2)
 dich1 <- melt(data1,
               id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
-                        "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
-                        "Fear_of_Invalidity.z",
-                        "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
+                        "ObserverJS","BeneficiaryJS","PerpetratorJS"),
+                        #"Fear_of_Invalidity.z"),
+                        #"MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
               measure.vars=c('Punishment.R1','Punishment.R2','Punishment.R3','Punishment.R4'), #Categories.
               variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
               value.name="Punishment" #Name of DV.
@@ -316,6 +318,12 @@ dich2$Uncertainty<-revalue(dich2$Uncertainty, c("Punishment.R1"=0, "Punishment.R
 
 #Merging both categorical variables in the same dataframe.
 dichm <- merge(dich1, dich2,by="row.names")
+
+#Creating Standardized Variables.
+dichm$ObserverJS.z <- scale(dichm$ObserverJS)[,] #Standardized Observer JS.
+dichm$BeneficiaryJS.z <- scale(dichm$BeneficiaryJS)[,] #Standardized Beneficiary JS.
+dichm$PerpetratorJS.z <- scale(dichm$PerpetratorJS)[,]  #Perpetrator JS.
+
 #Creating Subset for H3 - Embezzlement Analyses.
 table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
 table(data1$Exclusion_doubts) #From the remaning 136, 32 Participants detected or expressed doubts about the Embezzlement.
@@ -325,9 +333,9 @@ dichm_Intervention <- filter(dichm, Exclusion_doubts==0) #N = 104 * 4 = 416.
 library(reshape2)
 df1 <- melt(data1,
             id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
-                      "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
-                      "Fear_of_Invalidity.z",
-                      "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
+                      "ObserverJS","BeneficiaryJS","PerpetratorJS"),
+                      #"Fear_of_Invalidity.z"),
+                      #"MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
             measure.vars=c('R1','R2','R3','R4'), #Categories.
             variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
             value.name="Punishment" #Name of DV.
@@ -348,6 +356,15 @@ df2$Uncertainty<-revalue(df2$Uncertainty, c("R1"=0, "R2"=1,"R3"=0,"R4"=1))
 
 #Merging both categorical variables in the same dataframe.
 dm <- merge(df1, df2,by="row.names")
+dm$Punishment.y <- NULL
+colnames(dm)[colnames(dm)=="Punishment.x"] <- "Punishment"
+
+#Creating Standardized Variables.
+dm$ObserverJS.z <- scale(dm$ObserverJS)[,] #Standardized Observer JS.
+dm$BeneficiaryJS.z <- scale(dm$BeneficiaryJS)[,] #Standardized Beneficiary JS.
+dm$PerpetratorJS.z <- scale(dm$PerpetratorJS)[,]  #Perpetrator JS.
+dm$Punishment.z <- scale(dm$Punishment)[,] #Punishment.
+
 
 #Creating Subset for H3 - Embezzlement Analyses.
 table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
@@ -358,9 +375,9 @@ dm_Intervention <- filter(dm, Exclusion_doubts==0) #N = 104 * 4 = 416.
 library(reshape2)
 df3 <- melt(data1,
             id.vars=c("SD01_01","SD01_02","SD01_03","SD01_04",
-                      "ObserverJS.z","BeneficiaryJS.z","PerpetratorJS.z",
-                      "Fear_of_Invalidity.z",
-                      "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
+                      "ObserverJS","BeneficiaryJS","PerpetratorJS"),
+                      #"Fear_of_Invalidity.z",
+                      #"MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro","Exclusion_doubts"), #ID variables - variables to keep but not split apart on.
             measure.vars=c('R1.Comp','R2.Comp','R3.Comp','R4.Comp'), #Categories.
             variable.name= "Ambiguity", #Name of categorical variable that defines each within-subject condition.
             value.name="Compensation" #Name of DV.
@@ -381,6 +398,14 @@ df4$Uncertainty<-revalue(df4$Uncertainty, c("R1.Comp"=0, "R2.Comp"=1,"R3.Comp"=0
 
 #Merging both categorical variables in the same dataframe.
 dm2 <- merge(df3, df4,by="row.names")
+dm2$Compensation.y <- NULL
+colnames(dm2)[colnames(dm2)=="Compensation.x"] <- "Compensation"
+
+#Creating Standardized Variables.
+dm2$ObserverJS.z <- scale(dm2$ObserverJS)[,] #Standardized Observer JS.
+dm2$BeneficiaryJS.z <- scale(dm2$BeneficiaryJS)[,] #Standardized Beneficiary JS.
+dm2$PerpetratorJS.z <- scale(dm2$PerpetratorJS)[,]  #Perpetrator JS.
+dm2$Compensation.z <- scale(dm2$Compensation)[,] #Compensation.
 
 #Creating Subset for H3 - Embezzlement Analyses.
 table(is.na(data1$Exclusion_doubts)) #From 164, 28 NAs in Doubts about the Staged Embezzlement.
@@ -438,8 +463,8 @@ JScorr
 
 #Bivariate correlations with DVs.
 # 3PPG: R1, R2, R3, R4, R1.Comp, R2.Comp, R3.Comp, R4.Comp.
-rcorr(as.matrix(data1[,c("R1","R2","R3","R4","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
-rcorr(as.matrix(data1[,c("R1.Comp","R2.Comp","R3.Comp","R4.Comp","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
+rcorr(as.matrix(data1[,c("R1.z","R2.z","R3.z","R4.z","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
+rcorr(as.matrix(data1[,c("R1.Comp.z","R2.Comp.z","R3.Comp.z","R4.Comp.z","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
 
 # INTERVENTION: "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro"
 rcorr(as.matrix(data1[,c("MAXInterStrength","MAXInterStrength_Retro","ObserverJS","BeneficiaryJS","PerpetratorJS")]))
@@ -483,8 +508,8 @@ rcorr(as.matrix(data1[,c("Fear_of_Invalidity","VictimJS","ObserverJS","Beneficia
 
 #Bivariate correlations with DVs.
 # 3PPG: R1, R2, R3, R4, R1.Comp, R2.Comp, R3.Comp, R4.Comp.
-rcorr(as.matrix(data1[,c("Fear_of_Invalidity","R1","R2","R3","R4")]))
-rcorr(as.matrix(data1[,c("Fear_of_Invalidity","R1.Comp","R2.Comp","R3.Comp","R4.Comp")]))
+rcorr(as.matrix(data1[,c("Fear_of_Invalidity","R1.z","R2.z","R3.z","R4.z")]))
+rcorr(as.matrix(data1[,c("Fear_of_Invalidity","R1.Comp.z","R2.Comp.z","R3.Comp.z","R4.Comp.z")]))
 
 # INTERVENTION: "MAXInterStrength","InterDich","InterDich_Retro","MAXInterStrength_Retro"
 rcorr(as.matrix(data1[,c("Fear_of_Invalidity","MAXInterStrength","MAXInterStrength_Retro")]))
@@ -505,6 +530,7 @@ library(lme4)
 library(lmerTest)
 library(lattice)
 library(sjPlot)
+library(sjstats)
 
 
 
@@ -608,37 +634,37 @@ http://data.library.virginia.edu/visualizing-the-effects-of-logistic-regression/
 ################################################################################################################################
 
 ##H1##
-EP1 <- lmer(Punishment.x~Ambiguity+Uncertainty + (1|ID), data=dm) 
+EP1 <- lmer(Punishment.z~Ambiguity+Uncertainty + (1|ID), data=dm) 
 summary(EP1)
-plot(allEffects(EP1))
 
-TEST <- lmer(Punishment.x~Ambiguity+Uncertainty + (1+Ambiguity|ID), data=dm)
+TEST <- lmer(Punishment.z~Ambiguity+Uncertainty + (1+Ambiguity|ID), data=dm)
 summary(TEST)
 
-EC1 <- lmer(Compensation.x~Ambiguity+Uncertainty + (1|ID), data=dm2) 
+EC1 <- lmer(Compensation.z~Ambiguity+Uncertainty + (1|ID), data=dm2) 
 summary(EC1)
 
 
 ##H2a##
-
-EP2a <- lmer(Punishment.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm) 
+EP2a <- lmer(Punishment.z~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm) 
 summary(EP2a)
 plot(allEffects(EP2a))
 
-EC2a <- lmer(Compensation.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm2) 
+EC2a <- lmer(Compensation.z~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + (1|ID), data=dm2) 
 summary(EC2a)
 plot(allEffects(EC2a))
 
+
 #Test with Fear of Invalidity.
-FearInvalidity <- lmer(Punishment.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + Ambiguity*Fear_of_Invalidity.z+(1|ID), data=dm) 
+FearInvalidity <- lmer(Punishment.z.x~Ambiguity*PerpetratorJS.z+Ambiguity*ObserverJS.z + Ambiguity*Fear_of_Invalidity.z+(1|ID), data=dm) 
 summary(FearInvalidity)
 plot(allEffects(EP2a))
 
-EP2POWER <- lmer(Punishment.x~Ambiguity*ObserverJS.c + (1|ID), data=dm) 
+#Model por Power Simulation:
+EP2POWER <- lmer(Punishment.z~Ambiguity*ObserverJS.z + (1|ID), data=dm) 
 summary(EP2POWER)
-?var
-?chol
 
+EP2POWER_threeway <- lmer(Punishment.x~Ambiguity*Uncertainty*ObserverJS.z + (1|ID), data=dm) 
+summary(EP2POWER_threeway)
 
 
 #Simple Slopes for H2a.
@@ -658,11 +684,11 @@ summary(EP2a.low)
 
 ##H2b##
 
-EP2b <- lmer(Punishment.x~Uncertainty*BeneficiaryJS.z + (1|ID), data=dm) 
+EP2b <- lmer(Punishment.z~Uncertainty*BeneficiaryJS.z + (1|ID), data=dm) 
 summary(EP2b)
 plot(allEffects(EP2b))
 
-EC2b <- lmer(Compensation.x~Uncertainty*BeneficiaryJS.z + (1|ID), data=dm2) 
+EC2b <- lmer(Compensation.z~Uncertainty*BeneficiaryJS.z + (1|ID), data=dm2) 
 summary(EC2b)
 plot(allEffects(EC2b))
 
